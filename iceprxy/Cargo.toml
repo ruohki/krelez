@@ -1,0 +1,22 @@
+[package]
+name = "iceprxy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking", "stream"] }
+ogg = "0.9"
+lewton = "0.10"
+tokio = { version = "1.35", features = ["full"] }
+tokio-stream = "0.1"
+anyhow = "1.0"
+log = "0.4"
+env_logger = "0.10"
+bytes = "1.5"
+futures = "0.3"
+nom = "7.1"
+axum = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tower-http = { version = "0.5", features = ["cors"] }
+tokio-util = "0.7"

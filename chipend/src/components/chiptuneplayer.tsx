@@ -1,0 +1,301 @@
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause, Volume2, VolumeX, HelpCircle } from "lucide-react";
+
+interface Track {
+  title: string;
+  artist: string;
+  timestamp: number;
+}
+
+interface TrackHistoryEntry {
+  title: string;
+  artist: string;
+  startedAt: Date;
+}
+
+interface ChiptunePlayerProps {
+  streamUrl?: string;
+  apiBaseUrl?: string;
+}
+
+const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedVolume = localStorage.getItem('chiptunePlayerVolume');
+      return savedVolume ? parseFloat(savedVolume) : 0.7;
+    }
+    return 0.7;
+  });
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState<{ artist: string; title: string } | null>(null);
+  const [playbackTime, setPlaybackTime] = useState(0);
+  const [trackHistory, setTrackHistory] = useState<TrackHistoryEntry[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const lastTrackRef = useRef<string | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+
+  // Save volume to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('chiptunePlayerVolume', volume.toString());
+    }
+  }, [volume]);
+
+  // Autoplay setup
+  useEffect(() => {
+    const startPlayback = async () => {
+      if (audioRef.current) {
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error("Autoplay failed:", error);
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    startPlayback();
+  }, []);
+
+  // Fetch initial metadata
+  useEffect(() => {
+    const fetchInitialMetadata = async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/metadata`);
+        const data = await response.json();
+        if (data.artist && data.title) {
+          setCurrentTrack(data);
+          const trackId = `${data.artist}-${data.title}`;
+          lastTrackRef.current = trackId;
+        }
+      } catch (error) {
+        console.error('Error fetching initial metadata:', error);
+      }
+    };
+
+    fetchInitialMetadata();
+  }, [apiBaseUrl]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  // Timer management
+  useEffect(() => {
+    if (isPlaying) {
+      timerRef.current = window.setInterval(() => {
+        setPlaybackTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isPlaying]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // Format date to HH:MM
+  const formatTimeStamp = (date: Date): string => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
+  // Set up SSE connection for track updates
+  useEffect(() => {
+    const setupSSE = () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+
+      if (isPlaying) {
+        const eventSource = new EventSource(`${apiBaseUrl}/live`);
+        eventSourceRef.current = eventSource;
+        
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.artist && data.title) {
+              const trackId = `${data.artist}-${data.title}`;
+              
+              // Only add to history if it's a new track
+              if (lastTrackRef.current !== trackId) {
+                // Add the previous track to history if it exists
+                if (currentTrack) {
+                  setTrackHistory(prev => [{
+                    title: currentTrack.title,
+                    artist: currentTrack.artist,
+                    startedAt: new Date(Date.now() - 1000) // 1 second ago to ensure correct ordering
+                  }, ...prev].slice(0, 3)); // Keep last 3 tracks
+                }
+                
+                lastTrackRef.current = trackId;
+                setCurrentTrack(data);
+              }
+            }
+          } catch (error) {
+            console.error('Error parsing SSE data:', error);
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error('SSE connection error:', error);
+          eventSource.close();
+          eventSourceRef.current = null;
+        };
+      }
+    };
+
+    setupSSE();
+
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
+  }, [isPlaying, apiBaseUrl, currentTrack]);
+
+  const togglePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error("Playback failed:", error);
+        });
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+  };
+
+  return (
+    <div className="pixel-container w-full max-w-xl">
+      <div className="pixel-border bg-gray-800/90 p-6">
+        <h1 className="pixel-text text-3xl text-center mb-6 text-purple-400">CHIPTUNE PLAYER</h1>
+        
+        <div className="mb-6 p-4 bg-gray-900/90 pixel-inset">
+          <p className="pixel-text text-xl text-center text-green-400 overflow-hidden text-ellipsis whitespace-nowrap">
+            {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
+          </p>
+        </div>
+        
+        <div className="flex justify-between items-center mb-6 gap-4">
+          <button 
+            onClick={togglePlayPause}
+            className="pixel-button bg-purple-700 hover:bg-purple-600 p-3"
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+          </button>
+          
+          <div className="flex items-center gap-4 flex-1">
+            <button 
+              onClick={toggleMute}
+              className="pixel-button bg-gray-700 hover:bg-gray-600 p-3"
+              aria-label={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+            </button>
+            
+            <div className="flex items-center gap-2 flex-1">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="pixel-slider flex-1"
+              />
+              <span className="pixel-text text-sm text-purple-400 w-12 text-right">
+                {Math.round(volume * 100)}%
+              </span>
+            </div>
+          </div>
+          
+          {/* <button 
+            onClick={() => console.log("Help clicked")}
+            className="pixel-button bg-gray-700 hover:bg-gray-600 p-3"
+            aria-label="Help"
+          >
+            <HelpCircle size={24} />
+          </button> */}
+        </div>
+        
+        <audio 
+          ref={audioRef} 
+          onEnded={() => {
+            setIsPlaying(false);
+            setPlaybackTime(0);
+          }}
+          onError={() => {
+            setIsPlaying(false);
+            setPlaybackTime(0);
+            console.error("Stream connection failed. Please try again later.");
+          }}
+        >
+          <source type="audio/ogg" src={streamUrl} />
+        </audio>
+        
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="pixel-text text-2xl text-purple-400">TRACK HISTORY</h2>
+            <p className="pixel-text text-sm text-purple-400">
+              {isPlaying ? `Playback time: ${formatTime(playbackTime)}` : "Ready to play"}
+            </p>
+          </div>
+          <div className="pixel-inset bg-gray-900/90 p-4">
+            {trackHistory.length > 0 ? (
+              <div className="space-y-2">
+                {trackHistory.map((track, index) => (
+                  <div key={index} className="flex justify-between items-center">
+                    <p className="pixel-text text-gray-400">
+                      {track.title} - {track.artist}
+                    </p>
+                    <p className="pixel-text text-purple-400 ml-2">
+                      {formatTimeStamp(track.startedAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="pixel-text text-gray-500 text-center">No history yet</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChiptunePlayer;

@@ -1,0 +1,103 @@
+---
+import { getSecret } from "astro:env/server";
+import Layout from "../layouts/main.astro";
+import { Icon } from "astro-icon/components";
+
+// Remove server-side fetching
+const chiptuneTrack = "Loading...";
+const vaporFunkTrack = "Loading...";
+
+const ICEPRXY_CHIPTUNE_URL = getSecret("ICEPRXY_CHIPTUNE_URL");
+const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
+
+console.log("Urls", ICEPRXY_CHIPTUNE_URL, ICEPRXY_VAPOR_URL);
+---
+
+<Layout>
+	<div
+		class="min-h-screen flex items-center justify-center bg-gray-900 p-4"
+	>
+		<div class="flex flex-col items-center w-full max-w-4xl gap-8">
+			<h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+				Krelez proudly presents
+			</h1>
+			<div class="grid md:grid-cols-2 gap-8 w-full">
+				<a
+					href="/chiptune"
+					class="transform hover:scale-105 transition-transform"
+				>
+					<div
+						class="bg-gray-800 rounded-lg p-6 text-center space-y-4 border border-purple-500 flex flex-col items-center"
+					>
+						<Icon name="lucide:microchip" size={48} class="text-purple-400" />
+						<h2 class="text-2xl font-bold text-purple-400">CHIPTUNE</h2>
+						<p class="text-gray-400">8-bit nostalgia stream</p>
+						<p id="chiptune-track" class="text-sm text-green-400 mt-2 word-break-all w-full">
+							♪ {chiptuneTrack}
+						</p>
+					</div>
+				</a>
+
+				<a
+					href="/vapor-funk"
+					class="transform hover:scale-105 transition-transform"
+				>
+					<div
+						class="bg-gradient-to-br from-purple-600 to-pink-500 rounded-lg p-6 text-center space-y-4 flex flex-col items-center"
+					>
+						<Icon name="lucide:headphones" size={48} class="text-pink-200" />
+						<h2 class="text-2xl font-bold text-white">VAPOR FUNK</h2>
+						<p class="text-pink-100">Aesthetic vibes stream</p>
+						<p id="vapor-track" class="text-sm text-pink-200 mt-2 word-break-all w-full">
+							♪ {vaporFunkTrack}
+						</p>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script define:vars={{ ICEPRXY_VAPOR_URL, ICEPRXY_CHIPTUNE_URL }}>
+	console.log(ICEPRXY_VAPOR_URL, ICEPRXY_CHIPTUNE_URL);
+	const chiptuneTrackElement = document.getElementById('chiptune-track');
+	const vaporTrackElement = document.getElementById('vapor-track');
+
+	if (!chiptuneTrackElement || !vaporTrackElement) {
+		console.error('Could not find track elements');
+		throw new Error('Track elements not found');
+	}
+
+	// Function to update track information
+	async function updateTracks() {
+		try {
+			// Use environment variable for the API URL
+			const chiptuneResponse = await fetch(`${ICEPRXY_CHIPTUNE_URL}/metadata`);
+			const chiptuneData = await chiptuneResponse.json();
+			if (chiptuneData.artist && chiptuneData.title) {
+				chiptuneTrackElement.textContent = `♪ ${chiptuneData.artist} - ${chiptuneData.title}`;
+			}
+		} catch (error) {
+			console.error('Error fetching chiptune metadata:', error);
+		}
+
+		try {
+			const vaporResponse = await fetch(`${ICEPRXY_VAPOR_URL}/metadata`);
+			const vaporData = await vaporResponse.json();
+			if (vaporData.artist && vaporData.title) {
+				vaporTrackElement.textContent = `♪ ${vaporData.artist} - ${vaporData.title}`;
+			}
+		} catch (error) {
+			console.error('Error fetching vapor funk metadata:', error);
+		}
+	}
+
+	// Update immediately and then every 5 seconds
+	updateTracks();
+	const intervalId = setInterval(updateTracks, 5000);
+
+	// Cleanup interval when page is unloaded
+	window.addEventListener('beforeunload', () => {
+		clearInterval(intervalId);
+	});
+</script>

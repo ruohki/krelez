@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/main.astro";
+import VaporPlayer from "../components/vaporplayer";
+import { Icon } from "astro-icon/components";
+
+import { getSecret } from "astro:env/server";
+
+const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
+const VAPOR_STREAM_URL = getSecret("VAPOR_STREAM_URL");
+---
+
+<Layout>
+	<main class="min-h-screen w-full bg-gradient-to-br from-pink-300/80 via-fuchsia-400/70 to-purple-500/90">
+		<div class="container mx-auto px-4 flex flex-col min-h-screen">
+			<a 
+				href="/" 
+				class="pixel-text mt-4 inline-flex items-center hover:opacity-80 transition-opacity w-fit text-white"
+			>
+				<Icon name="lucide:arrow-left" class="mr-2" size={24} />
+				Back to Home
+			</a>
+			<div class="flex-1 flex items-center justify-center">
+				<VaporPlayer client:load streamUrl={VAPOR_STREAM_URL} apiBaseUrl={ICEPRXY_VAPOR_URL} />
+			</div>
+		</div>
+	</main>
+</Layout>
