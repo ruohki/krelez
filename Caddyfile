@@ -11,7 +11,24 @@
 
     # Handle vapor funk paths
     handle_path /vapor/* {
-        reverse_proxy iceprxy-vapor:3000
+        reverse_proxy iceprxy-vapor:3010
+    }
+
+    # Direct stream proxying
+    handle_path /streams/chip {
+        reverse_proxy http://79.120.11.40:8000 {
+            header_up Host {upstream_hostport}
+            header_up X-Forwarded-Host {host}
+        }
+        rewrite * /chiptune.ogg
+    }
+
+    handle_path /streams/vapor {
+        reverse_proxy http://79.120.11.40:8000 {
+            header_up Host {upstream_hostport}
+            header_up X-Forwarded-Host {host}
+        }
+        rewrite * /vapor.ogg
     }
 
     # All other traffic goes to the main application
