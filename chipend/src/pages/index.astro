@@ -10,7 +10,6 @@ const vaporFunkTrack = "Loading...";
 const ICEPRXY_CHIPTUNE_URL = getSecret("ICEPRXY_CHIPTUNE_URL");
 const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
 
-console.log("Urls", ICEPRXY_CHIPTUNE_URL, ICEPRXY_VAPOR_URL);
 ---
 
 <Layout>
@@ -59,7 +58,6 @@ console.log("Urls", ICEPRXY_CHIPTUNE_URL, ICEPRXY_VAPOR_URL);
 </Layout>
 
 <script define:vars={{ ICEPRXY_VAPOR_URL, ICEPRXY_CHIPTUNE_URL }}>
-	console.log(ICEPRXY_VAPOR_URL, ICEPRXY_CHIPTUNE_URL);
 	const chiptuneTrackElement = document.getElementById('chiptune-track');
 	const vaporTrackElement = document.getElementById('vapor-track');
 
