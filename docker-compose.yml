@@ -15,11 +15,6 @@ services:
     build:
       context: chipend/
       dockerfile: Dockerfile
-    environment:
-      - ICEPRXY_VAPOR_URL=http://localhost/vapor
-      - ICEPRXY_CHIPTUNE_URL=http://localhost/chip
-      - CHIPTUNE_STREAM_URL=http://79.120.11.40:8000/chiptune.ogg
-      - VAPOR_STREAM_URL=http://79.120.11.40:8000/vapor.ogg
 
   iceprxy-chiptune:
     image: ruohki/iceprxy
@@ -28,7 +23,6 @@ services:
       dockerfile: Dockerfile
     environment:
       - PORT=3000
-      - STREAM_URL=http://79.120.11.40:8000/chiptune.ogg
 
   iceprxy-vapor:
     image: ruohki/iceprxy
@@ -37,8 +31,3 @@ services:
       dockerfile: Dockerfile
     environment:
       - PORT=3000
-      - STREAM_URL=http://79.120.11.40:8000/vapor.ogg
-
-volumes:
-  caddy_data:
-  caddy_config:
