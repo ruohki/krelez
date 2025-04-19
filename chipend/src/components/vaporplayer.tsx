@@ -198,7 +198,7 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-4">
+    <div className="w-full max-w-md sm:max-w-xl mx-auto px-4">
       <div className="bg-gradient-to-br from-pink-300/40 via-fuchsia-400/30 to-purple-500/50 p-4 sm:p-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/10">
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-white tracking-wider">VAPOR FUNK</h1>
         

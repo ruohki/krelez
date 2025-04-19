@@ -199,7 +199,7 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-4">
+    <div className="w-full max-w-md sm:max-w-xl mx-auto px-4">
       <div className="pixel-border bg-gray-800/90 p-4 sm:p-6">
         <h1 className="pixel-text text-2xl sm:text-3xl text-center mb-4 sm:mb-6 text-purple-400">CHIPTUNE PLAYER</h1>
         
@@ -264,7 +264,7 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
             console.error("Stream connection failed. Please try again later.");
           }}
         >
-          <source type="audio/ogg" src={endpoint} />
+          <source type="audio/ogg" src={`${endpoint}/stream`} />
         </audio>
         
         <div className="mt-6 sm:mt-8">
