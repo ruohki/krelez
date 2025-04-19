@@ -275,6 +275,9 @@
 .marquee-container {
   width: 100%;
   overflow: hidden;
+}
+
+.marquee-container:has(.animate) {
   mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
 }
 
