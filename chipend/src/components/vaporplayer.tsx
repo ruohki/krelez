@@ -19,6 +19,7 @@ interface VaporPlayerProps {
 
 const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedVolume = localStorage.getItem('vaporPlayerVolume');
@@ -34,6 +35,8 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
   const timerRef = useRef<number | null>(null);
   const lastTrackRef = useRef<string | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Save volume to localStorage when it changes
   useEffect(() => {
@@ -175,6 +178,20 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
     };
   }, [isPlaying, endpoint, currentTrack]);
 
+  // Check if text needs animation
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (titleRef.current && containerRef.current) {
+        const isOverflowing = titleRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShouldAnimate(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [currentTrack]);
+
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -203,9 +220,11 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-white tracking-wider">VAPOR FUNK</h1>
         
         <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/5 rounded-lg backdrop-blur-sm">
-          <p className="text-lg sm:text-xl text-center text-white font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
-            {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
-          </p>
+          <div ref={containerRef} className="marquee-container">
+            <p ref={titleRef} className={`text-lg sm:text-xl text-center text-white font-semibold ${shouldAnimate ? 'animate' : ''} marquee-text`}>
+              {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
+            </p>
+          </div>
         </div>
         
         <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
@@ -220,13 +239,13 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
           <div className="flex items-center gap-2 sm:gap-4 flex-1">
             <button 
               onClick={toggleMute}
-              className="bg-purple-500/50 hover:bg-purple-500/70 p-2 sm:p-3 rounded-lg transition-colors duration-200"
+              className="bg-purple-500/50 hover:bg-purple-500/70 p-2 sm:p-3 rounded-lg transition-colors duration-200 shrink-0"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? <VolumeX size={20} className="text-white" /> : <Volume2 size={20} className="text-white" />}
             </button>
             
-            <div className="flex items-center gap-2 flex-1">
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <input
                 type="range"
                 min="0"
@@ -234,9 +253,9 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
                 step="0.01"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="flex-1 h-2 rounded-lg appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 sm:[&::-webkit-slider-thumb]:w-4 sm:[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-300/90 [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:bg-pink-300/100"
+                className="w-full h-2 rounded-lg appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 sm:[&::-webkit-slider-thumb]:w-4 sm:[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-300/90 [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:bg-pink-300/100"
               />
-              <span className="text-xs sm:text-sm text-white/90 w-10 sm:w-12 text-right">
+              <span className="text-xs sm:text-sm text-white/90 w-8 sm:w-12 text-right shrink-0">
                 {Math.round(volume * 100)}%
               </span>
             </div>

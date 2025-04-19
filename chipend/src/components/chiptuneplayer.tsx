@@ -20,6 +20,7 @@ interface ChiptunePlayerProps {
 
 const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedVolume = localStorage.getItem('chiptunePlayerVolume');
@@ -35,6 +36,8 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
   const timerRef = useRef<number | null>(null);
   const lastTrackRef = useRef<string | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Save volume to localStorage when it changes
   useEffect(() => {
@@ -176,6 +179,20 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
     };
   }, [isPlaying, endpoint, currentTrack]);
 
+  // Check if text needs animation
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (titleRef.current && containerRef.current) {
+        const isOverflowing = titleRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShouldAnimate(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [currentTrack]);
+
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -204,9 +221,11 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
         <h1 className="pixel-text text-2xl sm:text-3xl text-center mb-4 sm:mb-6 text-purple-400">CHIPTUNE PLAYER</h1>
         
         <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-900/90 pixel-inset">
-          <p className="pixel-text text-lg sm:text-xl text-center text-green-400 overflow-hidden text-ellipsis whitespace-nowrap">
-            {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
-          </p>
+          <div ref={containerRef} className="marquee-container">
+            <p ref={titleRef} className={`pixel-text text-lg sm:text-xl text-center text-green-400 ${shouldAnimate ? 'animate' : ''} marquee-text`}>
+              {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
+            </p>
+          </div>
         </div>
         
         <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
@@ -221,13 +240,13 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
           <div className="flex items-center gap-2 sm:gap-4 flex-1">
             <button 
               onClick={toggleMute}
-              className="pixel-button bg-gray-700 hover:bg-gray-600 p-2 sm:p-3"
+              className="pixel-button bg-gray-700 hover:bg-gray-600 p-2 sm:p-3 shrink-0"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </button>
             
-            <div className="flex items-center gap-2 flex-1">
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <input
                 type="range"
                 min="0"
@@ -235,9 +254,9 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
                 step="0.01"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="pixel-slider flex-1"
+                className="pixel-slider w-full"
               />
-              <span className="pixel-text text-xs sm:text-sm text-purple-400 w-10 sm:w-12 text-right">
+              <span className="pixel-text text-xs sm:text-sm text-purple-400 w-8 sm:w-12 text-right shrink-0">
                 {Math.round(volume * 100)}%
               </span>
             </div>

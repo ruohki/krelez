@@ -262,3 +262,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes marquee {
+  0%, 5% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% - 2rem));
+  }
+}
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 2rem;
+}
+
+.marquee-text.animate {
+  animation: marquee 20s linear infinite;
+}
