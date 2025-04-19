@@ -31,3 +31,37 @@ services:
     environment:
       - PORT=3000
       - STREAM_URL=http://79.120.11.40:8000/vapor.ogg
+
+  icecast:
+    image: moul/icecast
+    environment:
+      - ICECAST_ADMIN_PASSWORD
+      - ICECAST_SOURCE_PASSWORD
+    restart: unless-stopped
+    depends_on:
+      - caddy
+
+  transcoder-chip:
+    image: jrottenberg/ffmpeg:4.4-alpine
+    command: >
+      -re -i http://79.120.11.40:8000/chiptune.ogg
+      -c:a libmp3lame -b:a 128k -content_type audio/mpeg
+      -f mp3
+    environment:
+      - CHIP_ICECAST_URL
+    depends_on:
+      - caddy
+      - icecast
+    restart: unless-stopped
+  transcoder-vapor:
+    image: jrottenberg/ffmpeg:4.4-alpine
+    command: >
+      -re -i http://79.120.11.40:8000/vapor.ogg
+      -c:a libmp3lame -b:a 128k -content_type audio/mpeg
+      -f mp3 VAPOR_ICECAST_URL
+    environment:
+      - VAPOR_ICECAST_URL
+    depends_on:
+      - icecast
+      - caddy
+    restart: unless-stopped

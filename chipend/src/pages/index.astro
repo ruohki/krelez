@@ -8,11 +8,11 @@ const vaporFunkTrack = "Loading...";
 ---
 
 <Layout>
-	<div
-		class="min-h-screen flex items-center justify-center bg-gray-900 p-4"
-	>
+	<div class="min-h-screen flex items-center justify-center bg-gray-900 p-4">
 		<div class="flex flex-col items-center w-full max-w-4xl gap-8">
-			<h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+			<h1
+				class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400"
+			>
 				Krelez proudly presents
 			</h1>
 			<div class="grid md:grid-cols-2 gap-8 w-full">
@@ -26,23 +26,26 @@ const vaporFunkTrack = "Loading...";
 						<Icon name="lucide:microchip" size={48} class="text-purple-400" />
 						<h2 class="text-2xl font-bold text-purple-400">CHIPTUNE</h2>
 						<p class="text-gray-400">8-bit nostalgia stream</p>
-						<p id="chiptune-track" class="text-sm text-green-400 mt-2 word-break-all w-full">
+						<p
+							id="chiptune-track"
+							class="text-sm text-green-400 mt-2 word-break-all w-full"
+						>
 							♪ {chiptuneTrack}
 						</p>
 					</div>
 				</a>
 
-				<a
-					href="/vapor"
-					class="transform hover:scale-105 transition-transform"
-				>
+				<a href="/vapor" class="transform hover:scale-105 transition-transform">
 					<div
 						class="bg-gradient-to-br from-purple-600 to-pink-500 rounded-lg p-6 text-center space-y-4 flex flex-col items-center"
 					>
 						<Icon name="lucide:headphones" size={48} class="text-pink-200" />
 						<h2 class="text-2xl font-bold text-white">VAPOR FUNK</h2>
 						<p class="text-pink-100">Aesthetic vibes stream</p>
-						<p id="vapor-track" class="text-sm text-pink-200 mt-2 word-break-all w-full">
+						<p
+							id="vapor-track"
+							class="text-sm text-pink-200 mt-2 word-break-all w-full"
+						>
 							♪ {vaporFunkTrack}
 						</p>
 					</div>
@@ -53,44 +56,47 @@ const vaporFunkTrack = "Loading...";
 </Layout>
 
 <script>
-	const chiptuneTrackElement = document.getElementById('chiptune-track');
-	const vaporTrackElement = document.getElementById('vapor-track');
+	document.addEventListener("astro:page-load", () => {
+		// This script runs after the page is loaded
+		const chiptuneTrackElement = document.getElementById("chiptune-track");
+		const vaporTrackElement = document.getElementById("vapor-track");
 
-	if (!chiptuneTrackElement || !vaporTrackElement) {
-		console.error('Could not find track elements');
-		throw new Error('Track elements not found');
-	}
-
-	// Function to update track information
-	async function updateTracks() {
-		try {
-			// Use environment variable for the API URL
-			const chiptuneResponse = await fetch(`/chip/metadata`);
-			const chiptuneData = await chiptuneResponse.json();
-			if (chiptuneTrackElement && chiptuneData.artist && chiptuneData.title) {
-				chiptuneTrackElement.textContent = `♪ ${chiptuneData.artist} - ${chiptuneData.title}`;
-			}
-		} catch (error) {
-			console.error('Error fetching chiptune metadata:', error);
+		if (!chiptuneTrackElement || !vaporTrackElement) {
+			console.error("Could not find track elements");
+			throw new Error("Track elements not found");
 		}
 
-		try {
-			const vaporResponse = await fetch(`/vapor/metadata`);
-			const vaporData = await vaporResponse.json();
-			if (vaporTrackElement && vaporData.artist && vaporData.title) {
-				vaporTrackElement.textContent = `♪ ${vaporData.artist} - ${vaporData.title}`;
+		// Function to update track information
+		async function updateTracks() {
+			try {
+				// Use environment variable for the API URL
+				const chiptuneResponse = await fetch(`/chip/metadata`);
+				const chiptuneData = await chiptuneResponse.json();
+				if (chiptuneTrackElement && chiptuneData.artist && chiptuneData.title) {
+					chiptuneTrackElement.textContent = `♪ ${chiptuneData.artist} - ${chiptuneData.title}`;
+				}
+			} catch (error) {
+				console.error("Error fetching chiptune metadata:", error);
 			}
-		} catch (error) {
-			console.error('Error fetching vapor funk metadata:', error);
+
+			try {
+				const vaporResponse = await fetch(`/vapor/metadata`);
+				const vaporData = await vaporResponse.json();
+				if (vaporTrackElement && vaporData.artist && vaporData.title) {
+					vaporTrackElement.textContent = `♪ ${vaporData.artist} - ${vaporData.title}`;
+				}
+			} catch (error) {
+				console.error("Error fetching vapor funk metadata:", error);
+			}
 		}
-	}
 
-	// Update immediately and then every 5 seconds
-	updateTracks();
-	const intervalId = setInterval(updateTracks, 5000);
+		// Update immediately and then every 5 seconds
+		updateTracks();
+		const intervalId = setInterval(updateTracks, 5000);
 
-	// Cleanup interval when page is unloaded
-	window.addEventListener('beforeunload', () => {
-		clearInterval(intervalId);
+		// Cleanup interval when page is unloaded
+		window.addEventListener("beforeunload", () => {
+			clearInterval(intervalId);
+		});
 	});
 </script>

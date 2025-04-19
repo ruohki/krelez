@@ -281,7 +281,8 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
             console.error("Stream connection failed. Please try again later.");
           }}
         >
-          <source type="audio/ogg" src={`${endpoint}/stream`} />
+          <source src={`${endpoint}/stream`} type="audio/ogg" />
+          <source src={`${endpoint}/stream.mp3`} type="audio/mpeg" />
         </audio>
         
         <div className="mt-6 sm:mt-8">

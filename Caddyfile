@@ -37,6 +37,22 @@
         }
     }
 
+    handle_path /chip/stream.mp3 {
+        rewrite * /chip.mp3
+        reverse_proxy http://icecast:8000 {
+            header_up Host {upstream_hostport}
+            header_up X-Forwarded-Host {host}
+        }
+    }
+
+    handle_path /vapor/stream.mp3 {
+        rewrite * /vapor.mp3
+        reverse_proxy http://icecast:8000 {
+            header_up Host {upstream_hostport}
+            header_up X-Forwarded-Host {host}
+        }
+    }
+
     # All other traffic goes to the main application
     handle {
         reverse_proxy chipend:4321
