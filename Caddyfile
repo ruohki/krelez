@@ -11,7 +11,7 @@
 
     # Handle vapor funk paths
     handle_path /vapor/* {
-        reverse_proxy iceprxy-vapor:3010
+        reverse_proxy iceprxy-vapor:3000
     }
 
     # Direct stream proxying
