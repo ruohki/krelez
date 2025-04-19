@@ -2,11 +2,6 @@
 import Layout from "../layouts/main.astro";
 import VaporPlayer from "../components/vaporplayer";
 import { Icon } from "astro-icon/components";
-
-import { getSecret } from "astro:env/server";
-
-const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
-const VAPOR_STREAM_URL = getSecret("VAPOR_STREAM_URL");
 ---
 
 <Layout>
@@ -20,7 +15,7 @@ const VAPOR_STREAM_URL = getSecret("VAPOR_STREAM_URL");
 				Back to Home
 			</a>
 			<div class="flex-1 flex items-center justify-center">
-				<VaporPlayer client:load streamUrl={VAPOR_STREAM_URL} apiBaseUrl={ICEPRXY_VAPOR_URL} />
+				<VaporPlayer client:load endpoint="/vapor" />
 			</div>
 		</div>
 	</main>

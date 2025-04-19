@@ -14,11 +14,11 @@ interface TrackHistoryEntry {
 }
 
 interface ChiptunePlayerProps {
-  streamUrl?: string;
+  endpoint?: string;
   apiBaseUrl?: string;
 }
 
-const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
+const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -64,7 +64,7 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
   useEffect(() => {
     const fetchInitialMetadata = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/metadata`);
+        const response = await fetch(`${endpoint}/metadata`);
         const data = await response.json();
         if (data.artist && data.title) {
           setCurrentTrack(data);
@@ -77,7 +77,7 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
     };
 
     fetchInitialMetadata();
-  }, [apiBaseUrl]);
+  }, [endpoint]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -129,7 +129,7 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
       }
 
       if (isPlaying) {
-        const eventSource = new EventSource(`${apiBaseUrl}/live`);
+        const eventSource = new EventSource(`${endpoint}/live`);
         eventSourceRef.current = eventSource;
         
         eventSource.onmessage = (event) => {
@@ -174,7 +174,7 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
         eventSourceRef.current = null;
       }
     };
-  }, [isPlaying, apiBaseUrl, currentTrack]);
+  }, [isPlaying, endpoint, currentTrack]);
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -199,32 +199,32 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
   };
 
   return (
-    <div className="pixel-container w-full max-w-xl">
-      <div className="pixel-border bg-gray-800/90 p-6">
-        <h1 className="pixel-text text-3xl text-center mb-6 text-purple-400">CHIPTUNE PLAYER</h1>
+    <div className="w-full max-w-md mx-auto px-4">
+      <div className="pixel-border bg-gray-800/90 p-4 sm:p-6">
+        <h1 className="pixel-text text-2xl sm:text-3xl text-center mb-4 sm:mb-6 text-purple-400">CHIPTUNE PLAYER</h1>
         
-        <div className="mb-6 p-4 bg-gray-900/90 pixel-inset">
-          <p className="pixel-text text-xl text-center text-green-400 overflow-hidden text-ellipsis whitespace-nowrap">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-900/90 pixel-inset">
+          <p className="pixel-text text-lg sm:text-xl text-center text-green-400 overflow-hidden text-ellipsis whitespace-nowrap">
             {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
           </p>
         </div>
         
-        <div className="flex justify-between items-center mb-6 gap-4">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
           <button 
             onClick={togglePlayPause}
-            className="pixel-button bg-purple-700 hover:bg-purple-600 p-3"
+            className="pixel-button bg-purple-700 hover:bg-purple-600 p-2 sm:p-3"
             aria-label={isPlaying ? "Pause" : "Play"}
           >
-            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
           
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1">
             <button 
               onClick={toggleMute}
-              className="pixel-button bg-gray-700 hover:bg-gray-600 p-3"
+              className="pixel-button bg-gray-700 hover:bg-gray-600 p-2 sm:p-3"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
-              {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </button>
             
             <div className="flex items-center gap-2 flex-1">
@@ -237,7 +237,7 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
                 onChange={handleVolumeChange}
                 className="pixel-slider flex-1"
               />
-              <span className="pixel-text text-sm text-purple-400 w-12 text-right">
+              <span className="pixel-text text-xs sm:text-sm text-purple-400 w-10 sm:w-12 text-right">
                 {Math.round(volume * 100)}%
               </span>
             </div>
@@ -264,25 +264,25 @@ const ChiptunePlayer = ({ streamUrl, apiBaseUrl }: ChiptunePlayerProps) => {
             console.error("Stream connection failed. Please try again later.");
           }}
         >
-          <source type="audio/ogg" src={streamUrl} />
+          <source type="audio/ogg" src={endpoint} />
         </audio>
         
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="pixel-text text-2xl text-purple-400">TRACK HISTORY</h2>
-            <p className="pixel-text text-sm text-purple-400">
+        <div className="mt-6 sm:mt-8">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h2 className="pixel-text text-xl sm:text-2xl text-purple-400">TRACK HISTORY</h2>
+            <p className="pixel-text text-xs sm:text-sm text-purple-400">
               {isPlaying ? `Playback time: ${formatTime(playbackTime)}` : "Ready to play"}
             </p>
           </div>
-          <div className="pixel-inset bg-gray-900/90 p-4">
+          <div className="pixel-inset bg-gray-900/90 p-3 sm:p-4">
             {trackHistory.length > 0 ? (
               <div className="space-y-2">
                 {trackHistory.map((track, index) => (
                   <div key={index} className="flex justify-between items-center">
-                    <p className="pixel-text text-gray-400">
+                    <p className="pixel-text text-sm text-gray-400 truncate flex-1">
                       {track.title} - {track.artist}
                     </p>
-                    <p className="pixel-text text-purple-400 ml-2">
+                    <p className="pixel-text text-xs sm:text-sm text-purple-400 ml-2">
                       {formatTimeStamp(track.startedAt)}
                     </p>
                   </div>

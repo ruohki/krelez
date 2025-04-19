@@ -1,41 +1,44 @@
 {
     # Global options
     admin off
-}
 
+    #debug
+    #log {
+    #    level DEBUG
+    #}
+
+}
 :80 {
-    # Handle chiptune paths
-    handle_path /chip/* {
+    @chip path_regexp chip ^/chip/(live|metadata)$
+    handle @chip {
+        rewrite * /{re.chip.1}
         reverse_proxy iceprxy-chiptune:3000
     }
 
-    # Handle vapor funk paths
-    handle_path /vapor/* {
+    @vapor path_regexp vapor ^/vapor/(live|metadata)$
+    handle @vapor {
+        rewrite * /{re.vapor.1}
         reverse_proxy iceprxy-vapor:3000
     }
 
-    # Direct stream proxying
-    handle_path /streams/chip {
+    handle_path /chip/stream {
+        rewrite * /chiptune.ogg
         reverse_proxy http://79.120.11.40:8000 {
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }
-        rewrite * /chiptune.ogg
     }
 
-    handle_path /streams/vapor {
+    handle_path /vapor/stream {
+        rewrite * /vapor.ogg
         reverse_proxy http://79.120.11.40:8000 {
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }
-        rewrite * /vapor.ogg
     }
 
     # All other traffic goes to the main application
     handle {
         reverse_proxy chipend:4321
     }
-
-    # Enable compression
-    encode gzip
 }

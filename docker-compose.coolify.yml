@@ -3,8 +3,6 @@ services:
     image: caddy:2-alpine
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-    ports:
-      - "80:80"
     depends_on:
       - chipend
       - iceprxy-chiptune

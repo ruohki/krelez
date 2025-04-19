@@ -14,11 +14,10 @@ interface TrackHistoryEntry {
 }
 
 interface VaporPlayerProps {
-  streamUrl?: string;
-  apiBaseUrl?: string;
+  endpoint?: string;
 }
 
-const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
+const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -64,7 +63,7 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
   useEffect(() => {
     const fetchInitialMetadata = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/metadata`);
+        const response = await fetch(`${endpoint}/metadata`);
         const data = await response.json();
         if (data.artist && data.title) {
           setCurrentTrack(data);
@@ -77,7 +76,7 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
     };
 
     fetchInitialMetadata();
-  }, [apiBaseUrl]);
+  }, [endpoint]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -129,7 +128,7 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
       }
 
       if (isPlaying) {
-        const eventSource = new EventSource(`${apiBaseUrl}/live`);
+        const eventSource = new EventSource(`${endpoint}/live`);
         eventSourceRef.current = eventSource;
         
         eventSource.onmessage = (event) => {
@@ -174,7 +173,7 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
         eventSourceRef.current = null;
       }
     };
-  }, [isPlaying, apiBaseUrl, currentTrack]);
+  }, [isPlaying, endpoint, currentTrack]);
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -199,32 +198,32 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
   };
 
   return (
-    <div className="w-full max-w-xl">
-      <div className="bg-gradient-to-br from-pink-300/40 via-fuchsia-400/30 to-purple-500/50 p-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/10">
-        <h1 className="text-3xl font-bold text-center mb-6 text-white tracking-wider">VAPOR FUNK</h1>
+    <div className="w-full max-w-md mx-auto px-4">
+      <div className="bg-gradient-to-br from-pink-300/40 via-fuchsia-400/30 to-purple-500/50 p-4 sm:p-6 rounded-xl shadow-lg backdrop-blur-sm border border-white/10">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-white tracking-wider">VAPOR FUNK</h1>
         
-        <div className="mb-6 p-4 bg-white/5 rounded-lg backdrop-blur-sm">
-          <p className="text-xl text-center text-white font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/5 rounded-lg backdrop-blur-sm">
+          <p className="text-lg sm:text-xl text-center text-white font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
             {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
           </p>
         </div>
         
-        <div className="flex justify-between items-center mb-6 gap-4">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
           <button 
             onClick={togglePlayPause}
-            className="bg-pink-300/50 hover:bg-pink-300/70 p-3 rounded-lg transition-colors duration-200"
+            className="bg-pink-300/50 hover:bg-pink-300/70 p-2 sm:p-3 rounded-lg transition-colors duration-200"
             aria-label={isPlaying ? "Pause" : "Play"}
           >
-            {isPlaying ? <Pause size={24} className="text-white" /> : <Play size={24} className="text-white" />}
+            {isPlaying ? <Pause size={20} className="text-white" /> : <Play size={20} className="text-white" />}
           </button>
           
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1">
             <button 
               onClick={toggleMute}
-              className="bg-purple-500/50 hover:bg-purple-500/70 p-3 rounded-lg transition-colors duration-200"
+              className="bg-purple-500/50 hover:bg-purple-500/70 p-2 sm:p-3 rounded-lg transition-colors duration-200"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
-              {isMuted ? <VolumeX size={24} className="text-white" /> : <Volume2 size={24} className="text-white" />}
+              {isMuted ? <VolumeX size={20} className="text-white" /> : <Volume2 size={20} className="text-white" />}
             </button>
             
             <div className="flex items-center gap-2 flex-1">
@@ -235,9 +234,9 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
                 step="0.01"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="flex-1 h-2 rounded-lg appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-300/90 [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:bg-pink-300/100"
+                className="flex-1 h-2 rounded-lg appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 sm:[&::-webkit-slider-thumb]:w-4 sm:[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-300/90 [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:bg-pink-300/100"
               />
-              <span className="text-sm text-white/90 w-12 text-right">
+              <span className="text-xs sm:text-sm text-white/90 w-10 sm:w-12 text-right">
                 {Math.round(volume * 100)}%
               </span>
             </div>
@@ -256,25 +255,25 @@ const VaporPlayer = ({ streamUrl, apiBaseUrl }: VaporPlayerProps) => {
             console.error("Stream connection failed. Please try again later.");
           }}
         >
-          <source type="audio/ogg" src={streamUrl} />
+          <source type="audio/ogg" src={`${endpoint}/stream`} />
         </audio>
         
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-white">TRACK HISTORY</h2>
-            <p className="text-sm text-white/90">
+        <div className="mt-6 sm:mt-8">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">TRACK HISTORY</h2>
+            <p className="text-xs sm:text-sm text-white/90">
               {isPlaying ? `Playback time: ${formatTime(playbackTime)}` : "Ready to play"}
             </p>
           </div>
-          <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm">
+          <div className="bg-white/5 rounded-lg p-3 sm:p-4 backdrop-blur-sm">
             {trackHistory.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {trackHistory.map((track, index) => (
                   <div key={index} className="flex justify-between items-center">
-                    <p className="text-white/80">
+                    <p className="text-sm text-white/80 truncate flex-1">
                       {track.title} - {track.artist}
                     </p>
-                    <p className="text-pink-300/90 ml-2">
+                    <p className="text-xs sm:text-sm text-pink-300/90 ml-2">
                       {formatTimeStamp(track.startedAt)}
                     </p>
                   </div>

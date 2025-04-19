@@ -2,10 +2,6 @@
 import Layout from "../layouts/main.astro";
 import { Icon } from "astro-icon/components";
 import ChiptunePlayer from "../components/chiptuneplayer.tsx";
-import { getSecret } from "astro:env/server";
-
-const ICEPRXY_CHIPTUNE_URL = getSecret("ICEPRXY_CHIPTUNE_URL");
-const CHIPTUNE_STREAM_URL = getSecret("CHIPTUNE_STREAM_URL");
 ---
 
 <Layout>
@@ -19,7 +15,7 @@ const CHIPTUNE_STREAM_URL = getSecret("CHIPTUNE_STREAM_URL");
         Back to Home
       </a>
       <div class="flex-1 flex items-center justify-center">
-        <ChiptunePlayer client:load streamUrl={CHIPTUNE_STREAM_URL} apiBaseUrl={ICEPRXY_CHIPTUNE_URL}/>
+        <ChiptunePlayer client:load endpoint="/chip" />
       </div>
     </div>
   </div>

@@ -27,13 +27,4 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-
-  env: {
-    schema: {
-      ICEPRXY_VAPOR_URL: envField.string({ context: "server", access: "secret", optional: true }),
-      ICEPRXY_CHIPTUNE_URL: envField.string({ context: "server", access: "secret", optional: true }),
-      CHIPTUNE_STREAM_URL: envField.string({ context: "server", access: "secret", optional: true }),
-      VAPOR_STREAM_URL: envField.string({ context: "server", access: "secret", optional: true }),
-    }
-  }
 });

@@ -1,15 +1,10 @@
 ---
-import { getSecret } from "astro:env/server";
 import Layout from "../layouts/main.astro";
 import { Icon } from "astro-icon/components";
 
 // Remove server-side fetching
 const chiptuneTrack = "Loading...";
 const vaporFunkTrack = "Loading...";
-
-const ICEPRXY_CHIPTUNE_URL = getSecret("ICEPRXY_CHIPTUNE_URL");
-const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
-
 ---
 
 <Layout>
@@ -57,7 +52,7 @@ const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
 	</div>
 </Layout>
 
-<script define:vars={{ ICEPRXY_VAPOR_URL, ICEPRXY_CHIPTUNE_URL }}>
+<script>
 	const chiptuneTrackElement = document.getElementById('chiptune-track');
 	const vaporTrackElement = document.getElementById('vapor-track');
 
@@ -70,9 +65,9 @@ const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
 	async function updateTracks() {
 		try {
 			// Use environment variable for the API URL
-			const chiptuneResponse = await fetch(`${ICEPRXY_CHIPTUNE_URL}/metadata`);
+			const chiptuneResponse = await fetch(`/vapor/metadata`);
 			const chiptuneData = await chiptuneResponse.json();
-			if (chiptuneData.artist && chiptuneData.title) {
+			if (chiptuneTrackElement && chiptuneData.artist && chiptuneData.title) {
 				chiptuneTrackElement.textContent = `♪ ${chiptuneData.artist} - ${chiptuneData.title}`;
 			}
 		} catch (error) {
@@ -80,9 +75,9 @@ const ICEPRXY_VAPOR_URL = getSecret("ICEPRXY_VAPOR_URL");
 		}
 
 		try {
-			const vaporResponse = await fetch(`${ICEPRXY_VAPOR_URL}/metadata`);
+			const vaporResponse = await fetch(`/vapor/metadata`);
 			const vaporData = await vaporResponse.json();
-			if (vaporData.artist && vaporData.title) {
+			if (vaporTrackElement && vaporData.artist && vaporData.title) {
 				vaporTrackElement.textContent = `♪ ${vaporData.artist} - ${vaporData.title}`;
 			}
 		} catch (error) {
