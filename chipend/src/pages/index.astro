@@ -65,7 +65,7 @@ const vaporFunkTrack = "Loading...";
 	async function updateTracks() {
 		try {
 			// Use environment variable for the API URL
-			const chiptuneResponse = await fetch(`/vapor/metadata`);
+			const chiptuneResponse = await fetch(`/chip/metadata`);
 			const chiptuneData = await chiptuneResponse.json();
 			if (chiptuneTrackElement && chiptuneData.artist && chiptuneData.title) {
 				chiptuneTrackElement.textContent = `♪ ${chiptuneData.artist} - ${chiptuneData.title}`;
