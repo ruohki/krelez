@@ -23,6 +23,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - PORT=3000
+      - STREAM_URL=http://79.120.11.40:8000/chiptune.ogg
 
   iceprxy-vapor:
     image: ruohki/iceprxy
@@ -31,3 +32,4 @@ services:
       dockerfile: Dockerfile
     environment:
       - PORT=3000
+      - STREAM_URL=http://79.120.11.40:8000/vapor.ogg
