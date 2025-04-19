@@ -264,11 +264,11 @@
 }
 
 @keyframes marquee {
-  0%, 5% {
+  0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-100% - 2rem));
+    transform: translateX(-25%);
   }
 }
 
@@ -279,11 +279,16 @@
 }
 
 .marquee-text {
-  display: inline-block;
+  display: inline-flex;
   white-space: nowrap;
-  padding-right: 2rem;
 }
 
 .marquee-text.animate {
-  animation: marquee 20s linear infinite;
+  animation: marquee 10s linear infinite;
+}
+
+.marquee-text.animate span {
+  padding-right: 3rem;
+  flex-shrink: 0;
+  min-width: max-content;
 }

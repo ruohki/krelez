@@ -223,7 +223,14 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
         <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-900/90 pixel-inset">
           <div ref={containerRef} className="marquee-container">
             <p ref={titleRef} className={`pixel-text text-lg sm:text-xl text-center text-green-400 ${shouldAnimate ? 'animate' : ''} marquee-text`}>
-              {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
+              <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+              {shouldAnimate && (
+                <>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                </>
+              )}
             </p>
           </div>
         </div>

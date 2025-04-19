@@ -222,7 +222,14 @@ const VaporPlayer = ({ endpoint }: VaporPlayerProps) => {
         <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/5 rounded-lg backdrop-blur-sm">
           <div ref={containerRef} className="marquee-container">
             <p ref={titleRef} className={`text-lg sm:text-xl text-center text-white font-semibold ${shouldAnimate ? 'animate' : ''} marquee-text`}>
-              {currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}
+              <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+              {shouldAnimate && (
+                <>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                  <span>{currentTrack ? `${currentTrack.title} - ${currentTrack.artist}` : "Loading..."}</span>
+                </>
+              )}
             </p>
           </div>
         </div>
