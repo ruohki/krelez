@@ -9,18 +9,6 @@
 
 }
 :80 {
-    @chip path_regexp chip ^/chip/(live|metadata)$
-    handle @chip {
-        rewrite * /{re.chip.1}
-        reverse_proxy iceprxy-chiptune:3000
-    }
-
-    @vapor path_regexp vapor ^/vapor/(live|metadata)$
-    handle @vapor {
-        rewrite * /{re.vapor.1}
-        reverse_proxy iceprxy-vapor:3000
-    }
-
     handle_path /chip/stream {
         rewrite * /chiptune.ogg
         reverse_proxy http://79.120.11.40:8000 {

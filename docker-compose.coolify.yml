@@ -5,32 +5,12 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
       - chipend
-      - iceprxy-chiptune
-      - iceprxy-vapor
 
   chipend:
     image: ruohki/chipend
     build:
       context: chipend/
       dockerfile: Dockerfile
-
-  iceprxy-chiptune:
-    image: ruohki/iceprxy
-    build:
-      context: iceprxy/
-      dockerfile: Dockerfile
-    environment:
-      - PORT=3000
-      - STREAM_URL=http://79.120.11.40:8000/chiptune.ogg
-
-  iceprxy-vapor:
-    image: ruohki/iceprxy
-    build:
-      context: iceprxy/
-      dockerfile: Dockerfile
-    environment:
-      - PORT=3000
-      - STREAM_URL=http://79.120.11.40:8000/vapor.ogg
 
   icecast:
     image: moul/icecast

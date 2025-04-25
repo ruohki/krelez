@@ -35,7 +35,6 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
   const lastTrackRef = useRef<string | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
   const titleRef = useRef<HTMLParagraphElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -125,59 +124,51 @@ const ChiptunePlayer = ({ endpoint }: ChiptunePlayerProps) => {
 
   // Set up SSE connection for track updates
   useEffect(() => {
-    const setupSSE = () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
+  let pollingInterval: NodeJS.Timeout | null = null;
+  let isUnmounted = false;
 
-      if (isPlaying) {
-        const eventSource = new EventSource(`${endpoint}/live`);
-        eventSourceRef.current = eventSource;
-        
-        eventSource.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            if (data.artist && data.title) {
-              const trackId = `${data.artist}-${data.title}`;
-              
-              // Only add to history if it's a new track
-              if (lastTrackRef.current !== trackId) {
-                // Add the previous track to history if it exists
-                if (currentTrack) {
-                  setTrackHistory(prev => [{
-                    title: currentTrack.title,
-                    artist: currentTrack.artist,
-                    startedAt: new Date(Date.now() - 1000) // 1 second ago to ensure correct ordering
-                  }, ...prev].slice(0, 3)); // Keep last 3 tracks
-                }
-                
-                lastTrackRef.current = trackId;
-                setCurrentTrack(data);
-              }
-            }
-          } catch (error) {
-            console.error('Error parsing SSE data:', error);
+  const fetchAndUpdateTrack = async () => {
+    if (!isPlaying) return;
+    try {
+      const response = await fetch(`${endpoint}/metadata`);
+      const data = await response.json();
+      if (data.artist && data.title) {
+        const trackId = `${data.artist}-${data.title}`;
+
+        // Only add to history if it's a new track
+        if (lastTrackRef.current !== trackId) {
+          // Add the previous track to history if it exists
+          if (currentTrack) {
+            setTrackHistory(prev => [{
+              title: currentTrack.title,
+              artist: currentTrack.artist,
+              startedAt: new Date(Date.now() - 1000) // 1 second ago to ensure correct ordering
+            }, ...prev].slice(0, 3)); // Keep last 3 tracks
           }
-        };
 
-        eventSource.onerror = (error) => {
-          console.error('SSE connection error:', error);
-          eventSource.close();
-          eventSourceRef.current = null;
-        };
+          lastTrackRef.current = trackId;
+          setCurrentTrack(data);
+        }
       }
-    };
-
-    setupSSE();
-
-    return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
+    } catch (error) {
+      if (!isUnmounted) {
+        console.error('Error polling metadata:', error);
       }
-    };
-  }, [isPlaying, endpoint, currentTrack]);
+    }
+  };
+
+  if (isPlaying) {
+    fetchAndUpdateTrack(); // Fetch immediately
+    pollingInterval = setInterval(fetchAndUpdateTrack, 5000);
+  }
+
+  return () => {
+    isUnmounted = true;
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
+}, [isPlaying, endpoint, currentTrack]);
 
   // Check if text needs animation
   useEffect(() => {
