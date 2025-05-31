@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ params }) => {
-  const respone = await fetch('http://79.120.11.40:8000/status-json.xsl');
+  const respone = await fetch('https://cast.ruohki.services/status-json.xsl');
   const json = await respone.json();
   
   if (json.icestats?.source) {

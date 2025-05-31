@@ -27,7 +27,7 @@ services:
   transcoder-chip:
     image: jrottenberg/ffmpeg:4.4-alpine
     command: >
-      -re -i http://79.120.11.40:8000/chiptune.ogg
+      -re -i https://cast.ruohki.services/chiptune.ogg
       -c:a libmp3lame -b:a 128k -content_type audio/mpeg
       -f mp3
       icecast://source:sourcepassword@icecast:8000/chip.mp3
@@ -38,7 +38,7 @@ services:
   transcoder-vapor:
     image: jrottenberg/ffmpeg:4.4-alpine
     command: >
-      -re -i http://79.120.11.40:8000/vapor.ogg
+      -re -i https://cast.ruohki.services/vapor.ogg
       -c:a libmp3lame -b:a 128k -content_type audio/mpeg
       -f mp3
       icecast://source:sourcepassword@icecast:8000/vapor.mp3

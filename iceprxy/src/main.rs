@@ -308,7 +308,7 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     let stream_url = env::var("STREAM_URL")
-        .unwrap_or_else(|_| "http://79.120.11.40:8000/chiptune.ogg".to_string());
+        .unwrap_or_else(|_| "https://cast.ruohki.services/chiptune.ogg".to_string());
     
     let metadata = Arc::new(RwLock::new(None));
     let metadata_clone = metadata.clone();
