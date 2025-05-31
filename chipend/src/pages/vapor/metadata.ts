@@ -6,7 +6,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   if (json.icestats?.source) {
     //const chip = json.icestats.source.find((source: any) => source.server_name === 'Chiptune Radio');
-    const vapor = json.icestats.source.find((source: any) => source.server_name === 'VaporFunk radio');
+    const vapor = json.icestats.source.find((source: any) => source.server_name === 'Vaporwave Radio');
     vapor.listenurl = 'https://krelez.ruohki.dev/vapor/stream';
     return new Response(JSON.stringify(vapor ?? {}), { headers: { 'Content-Type': 'application/json' } });
   }
