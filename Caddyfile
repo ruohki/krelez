@@ -11,7 +11,7 @@
 :80 {
     handle_path /chip/stream {
         rewrite * /chiptune.ogg
-        reverse_proxy https://cast.ruohki.services/ {
+        reverse_proxy https://cast.ruohki.services {
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }
@@ -19,7 +19,7 @@
 
     handle_path /vapor/stream {
         rewrite * /vapor.ogg
-        reverse_proxy https://cast.ruohki.services/ {
+        reverse_proxy https://cast.ruohki.services {
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }
